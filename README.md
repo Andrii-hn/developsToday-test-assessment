@@ -3,6 +3,24 @@
 A full-stack quiz authoring application for the DevelopsToday assessment, built
 with Next.js, Tailwind CSS, Express, TypeScript, Prisma, and PostgreSQL.
 
+## Using the app
+
+Open `/quizzes` to view your library. Choose **Create a quiz**, enter a title,
+and add questions. Each question supports one of these answer formats:
+
+- **True / False:** explicitly select the correct Boolean answer.
+- **Short answer:** enter the expected text answer.
+- **Multiple choice:** add two or more options and check every correct option.
+
+Saving opens a read-only answer key. Use the delete button in the library to
+remove a quiz after confirming. This is an authoring app; taking quizzes, scoring,
+editing saved quizzes, and user accounts are outside the assessment scope.
+
+Titles allow up to 120 characters; quizzes contain 1–50 questions. Question text
+allows 1,000 characters, short answers 500, and option labels 300. Multiple-choice
+questions accept 2–20 options with unique labels and at least one correct answer.
+Text is trimmed before saving, and both the form and API validate the data.
+
 ## Requirements
 
 - Node.js 22.12 or newer (Node.js 22 is recommended; use `nvm use` if available).
@@ -87,6 +105,76 @@ for the running application or deployment; if configured for development, it mus
 point to a separate database because migration tooling resets the shadow database.
 Run the seed explicitly only when sample data is wanted.
 
+### Production services
+
+Deploy the frontend and backend as separate Node.js services with a managed
+PostgreSQL database. Run commands from the repository root so npm can resolve the
+workspace lockfile. Install development dependencies during the build: Prisma CLI,
+TypeScript, and Tailwind are needed to compile the applications.
+
+| Service  | Build command                                  | Start command                        |
+| -------- | ---------------------------------------------- | ------------------------------------ |
+| API      | `npm ci && npm run build --workspace backend`  | `npm run start --workspace backend`  |
+| Frontend | `npm ci && npm run build --workspace frontend` | `npm run start --workspace frontend` |
+
+Set `NODE_ENV=production` for both services. The API needs `DATABASE_URL`,
+`FRONTEND_URL` (the frontend's HTTPS origin, without a trailing slash), and the
+host-provided `PORT`. Its health check path is `/health`. Run `npm run db:deploy`
+as a release step before starting a new API version.
+
+Set `NEXT_PUBLIC_API_BASE_URL` to the API's public HTTPS URL, without a trailing
+slash, **before building the frontend**. Next.js includes this value in browser
+JavaScript; changing it requires rebuilding. The frontend Node.js server and the
+user's browser must both be able to reach this URL. Next.js also respects `PORT`.
+
+The application follows the assessment's shared-library model: there is no
+login, and any visitor can create or delete quizzes. Hosted sample data should
+therefore be disposable. CORS selects allowed browser origins; it does not add
+authentication.
+
+## API
+
+| Method   | Path           | Result                                                      |
+| -------- | -------------- | ----------------------------------------------------------- |
+| `POST`   | `/quizzes`     | `201`, created quiz with ordered questions and answers      |
+| `GET`    | `/quizzes`     | `200`, newest-first array of `{ id, title, questionCount }` |
+| `GET`    | `/quizzes/:id` | `200`, full quiz and answer key                             |
+| `DELETE` | `/quizzes/:id` | `204`, empty response; deletes questions and options too    |
+
+Example create request body:
+
+```json
+{
+  "title": "JavaScript basics",
+  "questions": [
+    {
+      "type": "BOOLEAN",
+      "text": "Arrays are primitive values.",
+      "correctAnswer": false
+    },
+    {
+      "type": "INPUT",
+      "text": "Which keyword declares a constant?",
+      "correctAnswer": "const"
+    },
+    {
+      "type": "CHECKBOX",
+      "text": "Which are primitive types?",
+      "options": [
+        { "text": "string", "isCorrect": true },
+        { "text": "boolean", "isCorrect": true },
+        { "text": "array", "isCorrect": false }
+      ]
+    }
+  ]
+}
+```
+
+Quiz and question IDs are UUIDs. Missing quizzes return `404`; invalid IDs or
+payloads return `400`. Errors use `{ "error": { "code": "...", "message": "..." } }`.
+Validation errors also include `fields`, an array of `{ path, message }` entries
+such as `questions.0.text`. Request bodies larger than 1 MB return `413`.
+
 ## Quality checks
 
 ```sh
@@ -138,6 +226,8 @@ backend/
   prisma.config.ts     Prisma CLI configuration
 frontend/
   app/                 Next.js routes, layout, and Tailwind stylesheet
+  components/          Quiz library, confirmation dialog, and creation form
+  lib/                 Typed API client and response types
 ```
 
 The root uses npm workspaces with one lockfile. Each application has its own
