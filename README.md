@@ -30,16 +30,12 @@ it running:
 npm run db:start
 ```
 
-In another terminal, generate the client, apply migrations, and add a sample quiz:
+In another terminal, generate the client and apply migrations:
 
 ```sh
 npm run db:generate
 npm run db:deploy
-npm run db:seed
 ```
-
-The seed creates **JavaScript basics** with all three question types. Running it
-again does not duplicate the quiz.
 
 ### 3. Start the apps
 
@@ -54,8 +50,20 @@ npm run dev:frontend
 ```
 
 Open [localhost:3000](http://localhost:3000). The backend runs on port 4000.
-Choose **Create quiz**, add a title and questions, select the correct answers,
-and save. Click a quiz card to view its details or use its delete button to remove it.
+
+## Create a sample quiz
+
+With the database running and migrations applied, run:
+
+```sh
+npm run db:seed
+```
+
+This creates **JavaScript basics** with all three question types. Running it again
+does not duplicate the quiz. Open `/quizzes` and click its card to view it.
+
+To create one through the app, choose **Create quiz**, enter a title, add questions
+and their correct answers, then click **Save quiz**.
 
 ## Checks
 
