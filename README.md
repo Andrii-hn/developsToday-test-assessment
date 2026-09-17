@@ -3,6 +3,9 @@
 A full-stack quiz authoring application for the DevelopsToday assessment, built
 with Next.js, Tailwind CSS, Express, TypeScript, Prisma, and PostgreSQL.
 
+[Live demo](https://quiz-builder-andrii-hn.vercel.app) ·
+[API health](https://develops-today-test-assessment-back.vercel.app/health)
+
 ## Using the app
 
 Open `/quizzes` to view your library. Choose **Create a quiz**, enter a title,
