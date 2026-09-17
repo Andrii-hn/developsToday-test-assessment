@@ -21,8 +21,16 @@ function DeleteDialog({
   const [error, setError] = useState('');
   useEffect(() => {
     const element = dialog.current;
+    const previousFocus = document.activeElement;
     element?.showModal();
-    return () => element?.close();
+    return () => {
+      element?.close();
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
+        previousFocus.focus();
+      } else {
+        document.getElementById('main-content')?.focus();
+      }
+    };
   }, []);
   async function remove() {
     setPending(true);
