@@ -1,29 +1,33 @@
-import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
+import { QuizList } from '@/components/quiz-list';
+import { primaryButton } from '@/components/ui';
+import { apiRequest, type QuizSummary } from '@/lib/quizzes';
 
-export const metadata: Metadata = {
-  title: 'Your quizzes',
-};
-
-export default function QuizzesPage() {
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Your quizzes' };
+export default async function QuizzesPage() {
+  const quizzes = await apiRequest<QuizSummary[]>('/quizzes');
   return (
-    <section aria-labelledby="quizzes-heading">
-      <h1
-        id="quizzes-heading"
-        className="text-3xl font-bold tracking-tight sm:text-4xl"
-      >
-        Your quizzes
-      </h1>
-      <p className="mt-3 max-w-xl text-base leading-7 text-slate-600">
-        A place for your questions, ideas, and the quizzes you create.
-      </p>
-      <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-        <h2 className="text-lg font-semibold">
-          Your workspace is taking shape
-        </h2>
-        <p className="mx-auto mt-2 max-w-md leading-7 text-slate-600">
-          Quiz creation and your saved quizzes will appear here soon.
-        </p>
+    <>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-5">
+        <div>
+          <p className="mb-2 text-xs font-bold tracking-widest text-indigo-700 uppercase">
+            Your workspace
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Your quizzes
+          </h1>
+          <p className="mt-3 text-slate-600">
+            A home for your questions and ideas.
+          </p>
+        </div>
+        <Link className={primaryButton} href="/create">
+          <Plus size={18} aria-hidden="true" />
+          Create a quiz
+        </Link>
       </div>
-    </section>
+      <QuizList initialQuizzes={quizzes} />
+    </>
   );
 }
