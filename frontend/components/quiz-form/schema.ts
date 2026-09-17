@@ -73,7 +73,9 @@ export const createQuizSchema = z.strictObject({
 export type CreateQuizInput = z.infer<typeof createQuizSchema>;
 
 export type QuizFormValues = z.input<typeof createQuizSchema>;
+
 export type QuestionType = QuizFormValues['questions'][number]['type'];
+
 export function newQuestion(
   type: QuestionType,
   text = '',

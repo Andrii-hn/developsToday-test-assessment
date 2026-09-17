@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { primaryButton } from '@/components/ui';
+
 export default function NotFound() {
   return (
     <div className="py-16 text-center">

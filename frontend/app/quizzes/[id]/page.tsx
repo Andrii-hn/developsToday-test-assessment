@@ -5,6 +5,7 @@ import { apiRequest, ApiError, questionLabels, type Quiz } from '@/lib/quizzes';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Quiz details' };
+
 export default async function QuizPage({
   params,
 }: {

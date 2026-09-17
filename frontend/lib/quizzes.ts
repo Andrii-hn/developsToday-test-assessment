@@ -6,13 +6,16 @@ export type Question = { id: string; text: string } & (
       options: { id: string; text: string; isCorrect: boolean }[];
     }
 );
+
 export type Quiz = {
   id: string;
   title: string;
   createdAt: string;
   questions: Question[];
 };
+
 export type QuizSummary = { id: string; title: string; questionCount: number };
+
 export const questionLabels = {
   BOOLEAN: 'True / False',
   INPUT: 'Short answer',

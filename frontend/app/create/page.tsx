@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { QuizForm } from '@/components/quiz-form/quiz-form';
+
 export const metadata = { title: 'Create a quiz' };
+
 export default function CreateQuizPage() {
   return (
     <div className="mx-auto max-w-3xl">

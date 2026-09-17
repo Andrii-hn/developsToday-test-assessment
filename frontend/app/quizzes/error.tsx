@@ -1,6 +1,8 @@
 'use client';
+
 import Link from 'next/link';
 import { Button, secondaryButton } from '@/components/ui';
+
 export default function QuizzesError({ retry }: { retry: () => void }) {
   return (
     <div className="surface p-8 text-center" role="alert">

@@ -38,6 +38,7 @@ function DeleteDialog({
       }
     };
   }, []);
+
   async function remove() {
     setPending(true);
     setError('');
@@ -55,6 +56,7 @@ function DeleteDialog({
       setPending(false);
     }
   }
+
   return (
     <dialog
       ref={dialog}

@@ -33,9 +33,11 @@ import {
 type FormContext = ReturnType<
   typeof useForm<QuizFormValues, unknown, CreateQuizInput>
 >;
+
 function useQuizForm(): FormContext {
   return useFormContext<QuizFormValues, unknown, CreateQuizInput>();
 }
+
 function FieldError({ name }: { name: FieldPath<QuizFormValues> }) {
   const { getFieldState, formState } = useQuizForm();
   const error = getFieldState(name, formState).error;
@@ -46,6 +48,7 @@ function FieldError({ name }: { name: FieldPath<QuizFormValues> }) {
     />
   );
 }
+
 function TextField({
   name,
   label,
@@ -80,6 +83,7 @@ function TextField({
     </div>
   );
 }
+
 function OptionsEditor({ index }: { index: number }) {
   const { control, register } = useQuizForm();
   const name = `questions.${index}.options` as const;
@@ -135,6 +139,7 @@ function OptionsEditor({ index }: { index: number }) {
     </fieldset>
   );
 }
+
 function QuestionEditor({
   index,
   type,
@@ -247,6 +252,7 @@ export function QuizForm() {
     name: 'questions',
   });
   const pending = form.formState.isSubmitting || saved;
+
   async function submit(input: CreateQuizInput) {
     form.clearErrors('root');
     try {
@@ -273,6 +279,7 @@ export function QuizForm() {
       });
     }
   }
+
   return (
     <FormProvider {...form}>
       <form noValidate onSubmit={form.handleSubmit(submit)}>
