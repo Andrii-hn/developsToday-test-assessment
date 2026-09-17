@@ -165,12 +165,17 @@ test('rolls back a nested write when the database rejects one question', async (
   assert.equal(await prisma.quiz.count({ where: { title: input.title } }), 0);
 });
 
-test('deleting a persisted quiz cascades to its questions and options', async () => {
+test('DELETE removes the quiz and its children and returns an empty response', async () => {
   const response = await postQuiz(makeQuizInput(`${titlePrefix}-cascade`));
   assert.equal(response.status, 201);
   const quiz = (await response.json()) as QuizDetails;
   const questionIds = quiz.questions.map((question) => question.id);
-  await prisma.quiz.delete({ where: { id: quiz.id } });
+  const deletion = await fetch(`${baseUrl}/quizzes/${quiz.id}`, {
+    method: 'DELETE',
+  });
+  assert.equal(deletion.status, 204);
+  assert.equal(await deletion.text(), '');
+  assert.equal((await fetch(`${baseUrl}/quizzes/${quiz.id}`)).status, 404);
   assert.equal(
     await prisma.question.count({ where: { id: { in: questionIds } } }),
     0,
@@ -178,5 +183,77 @@ test('deleting a persisted quiz cascades to its questions and options', async ()
   assert.equal(
     await prisma.option.count({ where: { questionId: { in: questionIds } } }),
     0,
+  );
+});
+
+test('GET details returns the same ordered structure as creation', async () => {
+  const creation = await postQuiz(makeQuizInput(`${titlePrefix}-details`));
+  const created = (await creation.json()) as QuizDetails;
+  const response = await fetch(`${baseUrl}/quizzes/${created.id}`);
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), created);
+});
+
+test('GET list returns summary fields and counts, newest first', async () => {
+  const ids: string[] = [];
+  for (const suffix of ['older', 'newer']) {
+    const response = await postQuiz(makeQuizInput(`${titlePrefix}-${suffix}`));
+    ids.push(((await response.json()) as QuizDetails).id);
+  }
+  await prisma.quiz.update({
+    where: { id: ids[0] },
+    data: { createdAt: new Date('2020-01-01') },
+  });
+  await prisma.quiz.update({
+    where: { id: ids[1] },
+    data: { createdAt: new Date('2021-01-01') },
+  });
+  const response = await fetch(`${baseUrl}/quizzes`);
+  assert.equal(response.status, 200);
+  const summaries = (await response.json()) as {
+    id: string;
+    title: string;
+    questionCount: number;
+  }[];
+  const fixtures = summaries.filter((quiz) => ids.includes(quiz.id));
+  assert.deepEqual(
+    fixtures.map((quiz) => quiz.id),
+    [ids[1], ids[0]],
+  );
+  for (const quiz of fixtures) {
+    assert.equal(quiz.questionCount, 3);
+    assert.deepEqual(Object.keys(quiz).sort(), [
+      'id',
+      'questionCount',
+      'title',
+    ]);
+  }
+});
+
+test('GET and DELETE distinguish missing quizzes from invalid IDs', async () => {
+  for (const method of ['GET', 'DELETE']) {
+    const missing = await fetch(`${baseUrl}/quizzes/${randomUUID()}`, {
+      method,
+    });
+    assert.equal(missing.status, 404);
+    assert.equal((await missing.json()).error.code, 'NOT_FOUND');
+    const invalid = await fetch(`${baseUrl}/quizzes/not-a-uuid`, { method });
+    assert.equal(invalid.status, 400);
+    assert.equal((await invalid.json()).error.code, 'VALIDATION_ERROR');
+  }
+});
+
+test('concurrent DELETE requests return one success and one not-found response', async () => {
+  const creation = await postQuiz(
+    makeQuizInput(`${titlePrefix}-concurrent-delete`),
+  );
+  const quiz = (await creation.json()) as QuizDetails;
+  const responses = await Promise.all([
+    fetch(`${baseUrl}/quizzes/${quiz.id}`, { method: 'DELETE' }),
+    fetch(`${baseUrl}/quizzes/${quiz.id}`, { method: 'DELETE' }),
+  ]);
+  assert.deepEqual(
+    responses.map((response) => response.status).sort(),
+    [204, 404],
   );
 });

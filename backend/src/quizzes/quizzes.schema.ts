@@ -69,3 +69,7 @@ export const createQuizSchema = z.strictObject({
 });
 
 export type CreateQuizInput = z.infer<typeof createQuizSchema>;
+
+export const quizIdParamsSchema = z.object({
+  id: z.uuid('Quiz ID must be a valid UUID.'),
+});

@@ -2,6 +2,32 @@ import { prisma } from '../lib/prisma.js';
 import { quizDetailsInclude, toQuizDetails } from './quizzes.mapper.js';
 import type { CreateQuizInput } from './quizzes.schema.js';
 
+export async function listQuizzes() {
+  const quizzes = await prisma.quiz.findMany({
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    select: { id: true, title: true, _count: { select: { questions: true } } },
+  });
+
+  return quizzes.map((quiz) => ({
+    id: quiz.id,
+    title: quiz.title,
+    questionCount: quiz._count.questions,
+  }));
+}
+
+export async function getQuiz(id: string) {
+  const quiz = await prisma.quiz.findUnique({
+    where: { id },
+    include: quizDetailsInclude,
+  });
+  return quiz ? toQuizDetails(quiz) : null;
+}
+
+export async function deleteQuiz(id: string) {
+  const result = await prisma.quiz.deleteMany({ where: { id } });
+  return result.count > 0;
+}
+
 export async function createQuiz(input: CreateQuizInput) {
   const quiz = await prisma.quiz.create({
     data: {
