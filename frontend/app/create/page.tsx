@@ -7,18 +7,16 @@ export default function CreateQuizPage() {
     <div className="mx-auto max-w-3xl">
       <Link
         href="/quizzes"
-        className="mb-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-slate-600 hover:text-indigo-700"
+        className="mb-5 inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-ink"
       >
         <ArrowLeft size={16} aria-hidden="true" />
         All quizzes
       </Link>
-      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-        Create a quiz
-      </h1>
-      <p className="mt-3 mb-8 text-slate-600">
-        Write your questions and mark the correct answers. All fields are
-        required.
+      <h1 className="page-heading">Create a quiz</h1>
+      <p className="mt-3 leading-7 text-muted">
+        Write questions and choose the correct answers. All fields are required.
       </p>
+      <div className="accent-rule" aria-hidden="true" />
       <QuizForm />
     </div>
   );

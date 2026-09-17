@@ -23,29 +23,23 @@ export default async function QuizPage({
     <div className="mx-auto max-w-3xl">
       <Link
         href="/quizzes"
-        className="mb-8 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-slate-600 hover:text-indigo-700"
+        className="mb-5 inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-ink"
       >
         <ArrowLeft size={16} aria-hidden="true" />
         All quizzes
       </Link>
-      <h1 className="break-words text-3xl font-bold tracking-tight sm:text-4xl">
-        {quiz.title}
-      </h1>
-      <p className="mt-3 text-slate-600">
+      <h1 className="page-heading break-words">{quiz.title}</h1>
+      <p className="mt-3 text-muted">
         {quiz.questions.length}{' '}
-        {quiz.questions.length === 1 ? 'question' : 'questions'} · Answer key
+        {quiz.questions.length === 1 ? 'question' : 'questions'}
       </p>
-      <ol className="mt-8 space-y-5">
+      <div className="accent-rule" aria-hidden="true" />
+      <ol className="space-y-5">
         {quiz.questions.map((question, index) => (
-          <li
-            key={question.id}
-            className="rounded-xl border border-slate-200 bg-white p-5 sm:p-7"
-          >
+          <li key={question.id} className="surface p-5 sm:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold text-slate-500">
-                Question {index + 1}
-              </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+              <span className="text-base font-bold">Question {index + 1}</span>
+              <span className="text-xs text-muted">
                 {questionLabels[question.type]}
               </span>
             </div>
@@ -53,11 +47,11 @@ export default async function QuizPage({
               {question.text}
             </h2>
             {question.type === 'INPUT' ? (
-              <div className="rounded-lg bg-emerald-50 p-4">
-                <p className="mb-1 text-xs font-semibold text-emerald-800">
+              <div className="rounded-md border border-blue-200 bg-blue-50 p-4">
+                <p className="mb-1 text-xs font-semibold text-blue-800">
                   Correct answer
                 </p>
-                <p className="break-words whitespace-pre-wrap text-emerald-950">
+                <p className="break-words whitespace-pre-wrap text-ink">
                   {question.correctAnswer}
                 </p>
               </div>
@@ -73,11 +67,11 @@ export default async function QuizPage({
                 ).map((option) => (
                   <li
                     key={option.id}
-                    className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${option.isCorrect ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : 'border-slate-200 text-slate-600'}`}
+                    className={`flex items-start justify-between gap-3 rounded-lg border p-3 ${option.isCorrect ? 'border-blue-200 bg-blue-50 text-ink' : 'border-line text-muted'}`}
                   >
                     <span className="min-w-0 break-words">{option.text}</span>
                     {option.isCorrect && (
-                      <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-emerald-800">
+                      <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-blue-800">
                         <Check size={16} aria-hidden="true" />
                         Correct
                       </span>

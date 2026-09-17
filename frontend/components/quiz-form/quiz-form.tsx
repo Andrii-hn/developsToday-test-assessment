@@ -14,7 +14,13 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash2 } from 'lucide-react';
 import { apiRequest, ApiError, questionLabels, type Quiz } from '@/lib/quizzes';
-import { Button, ErrorMessage, inputClass, secondaryButton } from '../ui';
+import {
+  Button,
+  ErrorMessage,
+  iconButton,
+  inputClass,
+  secondaryButton,
+} from '../ui';
 import {
   createQuizSchema,
   newQuestion,
@@ -80,26 +86,23 @@ function OptionsEditor({ index }: { index: number }) {
   return (
     <fieldset>
       <legend className="text-sm font-semibold">Answer options</legend>
-      <p className="mt-1 mb-4 text-sm text-slate-500">
+      <p className="mt-1 mb-4 text-sm text-muted">
         Check every correct answer. Choose at least one.
       </p>
       <div className="space-y-4">
         {fields.map((field, optionIndex) => (
-          <div
-            key={field.id}
-            className="rounded-lg border border-slate-200 p-3"
-          >
+          <div key={field.id} className="rounded-lg border border-line p-3">
             <TextField
               name={`${name}.${optionIndex}.text`}
               label={`Option ${optionIndex + 1}`}
               maxLength={300}
             />
             <div className="mt-2 flex items-center justify-between gap-3">
-              <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-slate-600">
+              <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-muted">
                 <input
                   type="checkbox"
                   {...register(`${name}.${optionIndex}.isCorrect`)}
-                  className="h-4 w-4 accent-indigo-600"
+                  className="h-4 w-4 accent-accent"
                 />
                 Correct answer
                 <span className="sr-only"> for option {optionIndex + 1}</span>
@@ -109,7 +112,7 @@ function OptionsEditor({ index }: { index: number }) {
                 aria-label={`Remove option ${optionIndex + 1}`}
                 disabled={fields.length <= 2}
                 onClick={() => remove(optionIndex)}
-                className="rounded-lg p-3 text-slate-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
+                className={iconButton}
               >
                 <Trash2 size={17} aria-hidden="true" />
               </button>
@@ -127,7 +130,7 @@ function OptionsEditor({ index }: { index: number }) {
         <Plus size={16} aria-hidden="true" />
         Add option
       </button>
-      <span className="ml-3 text-xs text-slate-500">{fields.length} / 20</span>
+      <span className="ml-3 text-xs text-muted">{fields.length} / 20</span>
     </fieldset>
   );
 }
@@ -149,7 +152,7 @@ function QuestionEditor({
   return (
     <section
       aria-labelledby={`question-${index}-heading`}
-      className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"
+      className="surface p-5 sm:p-6"
     >
       <div className="mb-5 flex items-center justify-between">
         <h2 id={`question-${index}-heading`} className="text-lg font-bold">
@@ -160,7 +163,7 @@ function QuestionEditor({
           disabled={count <= 1}
           onClick={onRemove}
           aria-label={`Remove question ${index + 1}`}
-          className="rounded-lg p-3 text-slate-500 hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-30"
+          className={iconButton}
         >
           <Trash2 size={18} aria-hidden="true" />
         </button>
@@ -190,7 +193,7 @@ function QuestionEditor({
           </select>
           <p
             id={`question-${index}-type-note`}
-            className="mt-2 text-xs text-slate-500"
+            className="mt-2 text-xs text-muted"
           >
             Changing the type clears the answers and keeps the question text.
           </p>
@@ -212,7 +215,7 @@ function QuestionEditor({
                   {[true, false].map((value) => (
                     <label
                       key={String(value)}
-                      className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-300 p-3 text-sm has-checked:border-indigo-600 has-checked:bg-indigo-50"
+                      className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-300 p-3 text-sm has-checked:border-accent has-checked:bg-blue-50"
                     >
                       <input
                         ref={value ? field.ref : undefined}
@@ -221,7 +224,7 @@ function QuestionEditor({
                         checked={field.value === value}
                         onBlur={field.onBlur}
                         onChange={() => field.onChange(value)}
-                        className="h-4 w-4 accent-indigo-600"
+                        className="h-4 w-4 accent-accent"
                       />
                       {value ? 'True' : 'False'}
                     </label>
@@ -286,12 +289,7 @@ export function QuizForm() {
           disabled={pending}
           className="min-w-0 space-y-6 disabled:opacity-70"
         >
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-            <TextField name="title" label="Quiz title" maxLength={120} />
-            <p className="mt-2 text-xs text-slate-500">
-              Give your quiz a clear, descriptive name.
-            </p>
-          </div>
+          <TextField name="title" label="Quiz title" maxLength={120} />
           {fields.map((field, index) => (
             <QuestionEditor
               key={field.id}
@@ -310,7 +308,7 @@ export function QuizForm() {
           <FieldError name="questions" />
           <button
             type="button"
-            className={`${secondaryButton} w-full border-dashed`}
+            className={secondaryButton}
             disabled={fields.length >= 50}
             onClick={() =>
               append(newQuestion('BOOLEAN'), { shouldFocus: false })
@@ -318,7 +316,7 @@ export function QuizForm() {
           >
             <Plus size={18} aria-hidden="true" />
             Add question{' '}
-            <span className="font-normal text-slate-500">
+            <span className="font-normal text-muted">
               ({fields.length} / 50)
             </span>
           </button>
@@ -330,7 +328,7 @@ export function QuizForm() {
           !form.formState.errors.root && (
             <ErrorMessage message="Please check the highlighted fields before saving." />
           )}
-        <div className="mt-8 flex items-center justify-end gap-3 border-t border-slate-200 pt-6">
+        <div className="mt-8 flex items-center justify-end gap-3 border-t border-line pt-6">
           {!pending && (
             <Link href="/quizzes" className={secondaryButton}>
               Cancel
