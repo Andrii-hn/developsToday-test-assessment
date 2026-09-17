@@ -13,7 +13,8 @@ import {
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash2 } from 'lucide-react';
-import { apiRequest, ApiError, questionLabels, type Quiz } from '@/lib/quizzes';
+import { apiRequest, ApiError, type Quiz } from '@/lib/quizzes';
+import { QuestionTypeSelect } from './question-type-select';
 import {
   Button,
   ErrorMessage,
@@ -176,21 +177,11 @@ function QuestionEditor({
           >
             Question type
           </label>
-          <select
+          <QuestionTypeSelect
             id={`question-${index}-type`}
-            className={inputClass}
             value={type}
-            onChange={(event) =>
-              onTypeChange(event.target.value as QuestionType)
-            }
-            aria-describedby={`question-${index}-type-note`}
-          >
-            {Object.entries(questionLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+            onChange={onTypeChange}
+          />
           <p
             id={`question-${index}-type-note`}
             className="mt-2 text-xs text-muted"

@@ -14,7 +14,7 @@ export default function CreateQuizPage() {
       </Link>
       <h1 className="page-heading">Create a quiz</h1>
       <p className="mt-3 leading-7 text-muted">
-        Write questions and choose the correct answers. All fields are required.
+        Write questions and choose the correct answers.
       </p>
       <div className="accent-rule" aria-hidden="true" />
       <QuizForm />
