@@ -145,7 +145,7 @@ export function QuizList({
               <div className="min-w-0 flex-1">
                 <h2 className="text-lg font-bold sm:text-xl">
                   <Link
-                    className="break-words decoration-accent decoration-2 underline-offset-4 after:absolute after:inset-0 after:rounded-xl after:content-[''] hover:underline focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-accent"
+                    className="break-words after:absolute after:inset-0 after:rounded-xl after:content-[''] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-accent"
                     href={`/quizzes/${quiz.id}`}
                   >
                     {quiz.title}
