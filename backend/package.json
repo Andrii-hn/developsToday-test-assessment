@@ -5,12 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "prisma generate && tsc --project tsconfig.check.json",
+    "predev": "prisma generate",
+    "db:start": "prisma dev --name quiz-builder --port 51213 --db-port 51214 --shadow-db-port 51215",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:validate": "prisma validate"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "cors": "2.8.6",
     "dotenv": "17.4.2",
     "express": "5.2.1"
@@ -21,6 +30,7 @@
     "@types/express": "5.0.6",
     "@types/node": "22.20.3",
     "globals": "17.12.0",
+    "prisma": "7.10.0",
     "tsx": "4.23.13",
     "typescript-eslint": "8.70.0"
   }

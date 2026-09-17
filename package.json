@@ -17,12 +17,26 @@
     "typecheck": "npm run typecheck --workspaces",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run format:check"
+    "check": "npm run lint && npm run typecheck && npm run format:check",
+    "db:start": "npm run db:start --workspace backend --",
+    "db:generate": "npm run db:generate --workspace backend --",
+    "db:migrate": "npm run db:migrate --workspace backend --",
+    "db:deploy": "npm run db:deploy --workspace backend --",
+    "db:seed": "npm run db:seed --workspace backend --",
+    "db:validate": "npm run db:validate --workspace backend --"
   },
   "devDependencies": {
     "eslint": "9.39.5",
     "eslint-config-prettier": "10.1.8",
     "prettier": "3.9.7",
     "typescript": "5.9.3"
+  },
+  "overrides": {
+    "@prisma/config": {
+      "deepmerge-ts": "8.0.2"
+    },
+    "prisma": {
+      "mysql2": "3.24.4"
+    }
   }
 }

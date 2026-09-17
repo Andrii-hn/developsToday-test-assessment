@@ -5,6 +5,7 @@ dist/
 coverage/
 package-lock.json
 next-env.d.ts
+backend/src/generated/
 *.tsbuildinfo
 .env
 .env.*
