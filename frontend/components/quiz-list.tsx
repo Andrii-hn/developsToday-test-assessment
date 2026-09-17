@@ -140,12 +140,12 @@ export function QuizList({
           {quizzes.map((quiz) => (
             <li
               key={quiz.id}
-              className="surface flex min-w-0 items-center gap-4 px-5 py-4 sm:px-6 sm:py-5"
+              className="surface relative isolate flex min-w-0 items-center gap-4 px-5 py-4 transition-colors hover:border-blue-300 sm:px-6 sm:py-5"
             >
               <div className="min-w-0 flex-1">
                 <h2 className="text-lg font-bold sm:text-xl">
                   <Link
-                    className="rounded-sm break-words decoration-accent decoration-2 underline-offset-4 hover:underline focus-visible:underline"
+                    className="break-words decoration-accent decoration-2 underline-offset-4 after:absolute after:inset-0 after:rounded-xl after:content-[''] hover:underline focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-accent"
                     href={`/quizzes/${quiz.id}`}
                   >
                     {quiz.title}
@@ -160,7 +160,7 @@ export function QuizList({
                 type="button"
                 aria-label={`Delete ${quiz.title}`}
                 onClick={() => setSelected(quiz)}
-                className={iconButton}
+                className={`${iconButton} relative z-10`}
               >
                 <Trash2 size={19} aria-hidden="true" />
               </button>
