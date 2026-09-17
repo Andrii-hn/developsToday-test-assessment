@@ -81,6 +81,7 @@ npm run dev:frontend
 | `backend/.env`        | `PORT`                     | API port; defaults to `4000`                                |
 | `backend/.env`        | `FRONTEND_URL`             | Allowed browser origin; defaults to `http://localhost:3000` |
 | `backend/.env`        | `DATABASE_URL`             | PostgreSQL connection URL                                   |
+| `backend/.env`        | `DIRECT_URL`               | Optional direct PostgreSQL URL for Prisma CLI/migrations    |
 | `backend/.env`        | `SHADOW_DATABASE_URL`      | Separate development database used by `db:migrate`          |
 | `frontend/.env.local` | `NEXT_PUBLIC_API_BASE_URL` | Public API base URL                                         |
 
@@ -105,7 +106,57 @@ for the running application or deployment; if configured for development, it mus
 point to a separate database because migration tooling resets the shadow database.
 Run the seed explicitly only when sample data is wanted.
 
-### Production services
+### Free deployment: Vercel and Neon
+
+Use **Vercel Hobby** for two projects (frontend and API), and **Neon Free** for
+PostgreSQL. This keeps the Next.js and Express applications separate. Vercel
+supports Express directly through the default export in `backend/src/app.ts`.
+The checked-in `vercel.json` files configure builds and the Frankfurt region.
+Free plans have usage limits; Vercel Hobby is intended for personal,
+non-commercial projects. See [Vercel Hobby](https://vercel.com/docs/plans/hobby)
+and [Neon plans](https://neon.com/docs/introduction/pro-plan).
+
+1. Create a Neon Free project in **AWS Frankfurt**. In its connection dialog,
+   copy both the pooled connection string and the direct connection string.
+   Preserve the supplied TLS parameters.
+2. Import this repository into Vercel as the API project. Select **backend** as
+   its Root Directory, **Express** as its framework, and **Node.js 22.x**.
+   Allow files outside the Root Directory so the root workspace lockfile is
+   available. The install and build commands come from `backend/vercel.json`.
+3. Add these environment variables to the API project's **Production** environment:
+   - `DATABASE_URL`: Neon's pooled URL, whose hostname contains `-pooler`.
+   - `DIRECT_URL`: Neon's direct URL, used for migrations.
+   - `FRONTEND_URL`: the frontend's stable production HTTPS origin, without a
+     trailing slash. If its URL is not known yet, update this after step 5 and
+     redeploy the API.
+4. Deploy the API. Its build generates Prisma Client and applies committed
+   migrations with `prisma migrate deploy`. Check `<API_URL>/health` and
+   `<API_URL>/quizzes` after deployment. Vercel handles the HTTP listener; no
+   custom Start Command or `PORT` is needed.
+5. Import the same repository as a second Vercel project. Select **frontend** as
+   its Root Directory, **Next.js** as its framework, and **Node.js 22.x**. Again,
+   allow files outside the Root Directory. Add `NEXT_PUBLIC_API_BASE_URL` to its
+   **Production** environment, using the API's stable HTTPS URL without a
+   trailing slash, and deploy. Update `FRONTEND_URL` in the API and redeploy it.
+6. Use each project's stable production domain when sharing the app. Verify that
+   the production frontend and API are publicly accessible without a Vercel
+   login; protected preview URLs cannot be used as a public API base URL.
+7. Optionally seed the hosted database from a local terminal. Set `DATABASE_URL`
+   for that command to the hosted database connection, then run `npm run db:seed`.
+   Keep the connection string out of Git and screenshots. Seeding is explicit;
+   deployments never overwrite or recreate quiz data.
+
+Production database credentials should be scoped to **Production**. Preview
+API deployments need their own Neon branch, credentials, and matching frontend
+origin before they can work; do not point preview migration builds at the
+production database. Local development continues using `backend/.env` and its
+local database.
+
+The API reuses a small PostgreSQL connection pool and attaches it to Vercel's
+function lifecycle so idle connections can close before an instance is suspended.
+`DIRECT_URL` is optional locally; Prisma CLI falls back to `DATABASE_URL`.
+
+### Other Node.js hosts
 
 Deploy the frontend and backend as separate Node.js services with a managed
 PostgreSQL database. Run commands from the repository root so npm can resolve the

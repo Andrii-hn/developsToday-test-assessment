@@ -16,7 +16,12 @@ let baseUrl: string;
 let databaseReady = false;
 
 before(async () => {
-  execFileSync('npm', ['run', 'db:deploy'], { timeout: 30000, stdio: 'pipe' });
+  execFileSync('npm', ['run', 'db:deploy'], {
+    timeout: 30000,
+    stdio: 'pipe',
+    // Always migrate the test database, even if .env has a hosted DIRECT_URL.
+    env: { ...process.env, DIRECT_URL: process.env.DATABASE_URL },
+  });
   databaseReady = true;
   const testServer = app.listen(0, '127.0.0.1');
   server = testServer;
