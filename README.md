@@ -97,6 +97,31 @@ npm run build
 `check` runs linting, TypeScript checks, and formatting verification for both
 applications. Use `npm run format` to apply formatting.
 
+Run validation and error-handling tests without a database:
+
+```sh
+npm test
+```
+
+For HTTP/database integration tests, copy the test environment example and start
+the separate local test database:
+
+```sh
+cp backend/.env.test.example backend/.env.test
+npm run db:test:start
+```
+
+In another terminal:
+
+```sh
+npm run test:integration
+```
+
+The integration suite applies migrations to the database configured in
+`backend/.env.test`, starts the API on an available port, and cleans up its own
+quiz records afterward. Keep this configuration separate from development and
+production databases. Stop the test database with `q` or `Ctrl+C` when finished.
+
 After building, production servers can be started in separate terminals:
 
 ```sh

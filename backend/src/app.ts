@@ -1,6 +1,8 @@
 import cors from 'cors';
 import express from 'express';
 import { config } from './config.js';
+import { errorHandler } from './middleware/error-handler.js';
+import { quizzesRouter } from './quizzes/quizzes.routes.js';
 
 export const app = express();
 
@@ -12,6 +14,8 @@ app.get('/health', (_request, response) => {
   response.json({ status: 'ok' });
 });
 
+app.use('/quizzes', quizzesRouter);
+
 app.use((_request, response) => {
   response.status(404).json({
     error: {
@@ -20,3 +24,5 @@ app.use((_request, response) => {
     },
   });
 });
+
+app.use(errorHandler);

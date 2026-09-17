@@ -15,14 +15,18 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:validate": "prisma validate"
+    "db:validate": "prisma validate",
+    "test": "node --import tsx --test test/quizzes.schema.test.ts test/error-handler.test.ts",
+    "test:integration": "prisma generate && node --env-file=.env.test --import tsx --test test/quizzes.integration.test.ts",
+    "db:test:start": "prisma dev --name quiz-builder-tests --port 51223 --db-port 51224 --shadow-db-port 51225"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "cors": "2.8.6",
     "dotenv": "17.4.2",
-    "express": "5.2.1"
+    "express": "5.2.1",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@eslint/js": "9.39.5",
