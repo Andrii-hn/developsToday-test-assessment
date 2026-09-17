@@ -1,37 +1,16 @@
 # Quiz Builder
 
-A full-stack quiz authoring application for the DevelopsToday assessment, built
-with Next.js, Tailwind CSS, Express, TypeScript, Prisma, and PostgreSQL.
+Create, browse, and delete quizzes with True/False, short-answer, and
+multiple-choice questions. Built with Next.js, Tailwind CSS, Express,
+TypeScript, Prisma, and PostgreSQL.
 
-[Live demo](https://quiz-builder-andrii-hn.vercel.app) ·
-[API health](https://develops-today-test-assessment-back.vercel.app/health)
-
-## Using the app
-
-Open `/quizzes` to view your library. Choose **Create a quiz**, enter a title,
-and add questions. Each question supports one of these answer formats:
-
-- **True / False:** explicitly select the correct Boolean answer.
-- **Short answer:** enter the expected text answer.
-- **Multiple choice:** add two or more options and check every correct option.
-
-Saving opens a read-only answer key. Use the delete button in the library to
-remove a quiz after confirming. This is an authoring app; taking quizzes, scoring,
-editing saved quizzes, and user accounts are outside the assessment scope.
-
-Titles allow up to 120 characters; quizzes contain 1–50 questions. Question text
-allows 1,000 characters, short answers 500, and option labels 300. Multiple-choice
-questions accept 2–20 options with unique labels and at least one correct answer.
-Text is trimmed before saving, and both the form and API validate the data.
-
-## Requirements
-
-- Node.js 22.12 or newer (Node.js 22 is recommended; use `nvm use` if available).
-- npm 9 or newer.
+[Live demo](https://quiz-builder-andrii-hn.vercel.app)
 
 ## Local setup
 
-Run from the repository root:
+Requires Node.js 22.12+ (22.x) and npm 9+. Run commands from the repository root.
+
+### 1. Install and configure
 
 ```sh
 npm ci
@@ -39,19 +18,19 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env.local
 ```
 
-Start the local database in a terminal and leave it running:
+The examples include local database and API URLs. Environment files are ignored
+by Git.
+
+### 2. Set up the database
+
+Start Prisma's local PostgreSQL-compatible database (no Docker needed) and leave
+it running:
 
 ```sh
 npm run db:start
 ```
 
-This uses [Prisma's local PostgreSQL-compatible server](https://www.prisma.io/docs/local-development/postgres),
-powered by PGlite. It requires no Docker installation and preserves its data
-between restarts. The connection URLs in `backend/.env.example` match this command.
-Press `q` or `Ctrl+C` to stop the database.
-
-In another terminal, generate the database client, apply the committed migrations,
-and create the sample quiz:
+In another terminal, generate the client, apply migrations, and add a sample quiz:
 
 ```sh
 npm run db:generate
@@ -59,235 +38,39 @@ npm run db:deploy
 npm run db:seed
 ```
 
-The seed adds a JavaScript quiz with all three question types. It can be run
-repeatedly without duplicating the sample or overwriting existing quizzes.
+The seed creates **JavaScript basics** with all three question types. Running it
+again does not duplicate the quiz.
 
-Start the backend in one terminal:
+### 3. Start the apps
+
+Run each command in a separate terminal:
 
 ```sh
 npm run dev:backend
 ```
 
-Start the frontend in another terminal:
-
 ```sh
 npm run dev:frontend
 ```
 
-- Frontend: <http://localhost:3000> (redirects to `/quizzes`).
-- API health: <http://localhost:4000/health> (returns `{"status":"ok"}`).
+Open [localhost:3000](http://localhost:3000). The backend runs on port 4000.
+Choose **Create quiz**, add a title and questions, select the correct answers,
+and save. Click a quiz card to view its details or use its delete button to remove it.
 
-### Environment variables
-
-| File                  | Variable                   | Purpose                                                     |
-| --------------------- | -------------------------- | ----------------------------------------------------------- |
-| `backend/.env`        | `PORT`                     | API port; defaults to `4000`                                |
-| `backend/.env`        | `FRONTEND_URL`             | Allowed browser origin; defaults to `http://localhost:3000` |
-| `backend/.env`        | `DATABASE_URL`             | PostgreSQL connection URL                                   |
-| `backend/.env`        | `DIRECT_URL`               | Optional direct PostgreSQL URL for Prisma CLI/migrations    |
-| `backend/.env`        | `SHADOW_DATABASE_URL`      | Separate development database used by `db:migrate`          |
-| `frontend/.env.local` | `NEXT_PUBLIC_API_BASE_URL` | Public API base URL                                         |
-
-Real environment files and local databases are ignored by Git. Commit only the
-environment examples. Frontend variables prefixed with `NEXT_PUBLIC_` are public;
-do not put secrets in them.
-
-### Database changes and hosting
-
-After changing `backend/prisma/schema.prisma`, create a migration and regenerate
-the client:
+## Checks
 
 ```sh
-npm run db:migrate -- --name describe_the_change
-npm run db:generate
+npm run check   # ESLint, TypeScript, and Prettier
+npm test       # Backend and frontend unit tests
+npm run build  # Production builds
 ```
 
-For a hosted PostgreSQL database, set `DATABASE_URL` to its connection URL and
-apply committed migrations with `npm run db:deploy`. Preserve the provider's TLS
-settings. `db:migrate` is for development only. `SHADOW_DATABASE_URL` is not needed
-for the running application or deployment; if configured for development, it must
-point to a separate database because migration tooling resets the shadow database.
-Run the seed explicitly only when sample data is wanted.
-
-### Free deployment: Vercel and Neon
-
-Use **Vercel Hobby** for two projects (frontend and API), and **Neon Free** for
-PostgreSQL. This keeps the Next.js and Express applications separate. Vercel
-supports Express directly through the default export in `backend/src/app.ts`.
-The checked-in `vercel.json` files configure builds and the Frankfurt region.
-Free plans have usage limits; Vercel Hobby is intended for personal,
-non-commercial projects. See [Vercel Hobby](https://vercel.com/docs/plans/hobby)
-and [Neon plans](https://neon.com/docs/introduction/pro-plan).
-
-1. Create a Neon Free project in **AWS Frankfurt**. In its connection dialog,
-   copy both the pooled connection string and the direct connection string.
-   Preserve the supplied TLS parameters.
-2. Import this repository into Vercel as the API project. Select **backend** as
-   its Root Directory, **Express** as its framework, and **Node.js 22.x**.
-   Allow files outside the Root Directory so the root workspace lockfile is
-   available. The install and build commands come from `backend/vercel.json`.
-3. Add these environment variables to the API project's **Production** environment:
-   - `DATABASE_URL`: Neon's pooled URL, whose hostname contains `-pooler`.
-   - `DIRECT_URL`: Neon's direct URL, used for migrations.
-   - `FRONTEND_URL`: the frontend's stable production HTTPS origin, without a
-     trailing slash. If its URL is not known yet, update this after step 5 and
-     redeploy the API.
-4. Deploy the API. Its build generates Prisma Client and applies committed
-   migrations with `prisma migrate deploy`. Check `<API_URL>/health` and
-   `<API_URL>/quizzes` after deployment. Vercel handles the HTTP listener; no
-   custom Start Command or `PORT` is needed.
-5. Import the same repository as a second Vercel project. Select **frontend** as
-   its Root Directory, **Next.js** as its framework, and **Node.js 22.x**. Again,
-   allow files outside the Root Directory. Add `NEXT_PUBLIC_API_BASE_URL` to its
-   **Production** environment, using the API's stable HTTPS URL without a
-   trailing slash, and deploy. Update `FRONTEND_URL` in the API and redeploy it.
-6. Use each project's stable production domain when sharing the app. Verify that
-   the production frontend and API are publicly accessible without a Vercel
-   login; protected preview URLs cannot be used as a public API base URL.
-7. Optionally seed the hosted database from a local terminal. Set `DATABASE_URL`
-   for that command to the hosted database connection, then run `npm run db:seed`.
-   Keep the connection string out of Git and screenshots. Seeding is explicit;
-   deployments never overwrite or recreate quiz data.
-
-Production database credentials should be scoped to **Production**. Preview
-API deployments need their own Neon branch, credentials, and matching frontend
-origin before they can work; do not point preview migration builds at the
-production database. Local development continues using `backend/.env` and its
-local database.
-
-The API reuses a small PostgreSQL connection pool and attaches it to Vercel's
-function lifecycle so idle connections can close before an instance is suspended.
-`DIRECT_URL` is optional locally; Prisma CLI falls back to `DATABASE_URL`.
-
-### Other Node.js hosts
-
-Deploy the frontend and backend as separate Node.js services with a managed
-PostgreSQL database. Run commands from the repository root so npm can resolve the
-workspace lockfile. Install development dependencies during the build: Prisma CLI,
-TypeScript, and Tailwind are needed to compile the applications.
-
-| Service  | Build command                                  | Start command                        |
-| -------- | ---------------------------------------------- | ------------------------------------ |
-| API      | `npm ci && npm run build --workspace backend`  | `npm run start --workspace backend`  |
-| Frontend | `npm ci && npm run build --workspace frontend` | `npm run start --workspace frontend` |
-
-Set `NODE_ENV=production` for both services. The API needs `DATABASE_URL`,
-`FRONTEND_URL` (the frontend's HTTPS origin, without a trailing slash), and the
-host-provided `PORT`. Its health check path is `/health`. Run `npm run db:deploy`
-as a release step before starting a new API version.
-
-Set `NEXT_PUBLIC_API_BASE_URL` to the API's public HTTPS URL, without a trailing
-slash, **before building the frontend**. Next.js includes this value in browser
-JavaScript; changing it requires rebuilding. The frontend Node.js server and the
-user's browser must both be able to reach this URL. Next.js also respects `PORT`.
-
-The application follows the assessment's shared-library model: there is no
-login, and any visitor can create or delete quizzes. Hosted sample data should
-therefore be disposable. CORS selects allowed browser origins; it does not add
-authentication.
-
-## API
-
-| Method   | Path           | Result                                                      |
-| -------- | -------------- | ----------------------------------------------------------- |
-| `POST`   | `/quizzes`     | `201`, created quiz with ordered questions and answers      |
-| `GET`    | `/quizzes`     | `200`, newest-first array of `{ id, title, questionCount }` |
-| `GET`    | `/quizzes/:id` | `200`, full quiz and answer key                             |
-| `DELETE` | `/quizzes/:id` | `204`, empty response; deletes questions and options too    |
-
-Example create request body:
-
-```json
-{
-  "title": "JavaScript basics",
-  "questions": [
-    {
-      "type": "BOOLEAN",
-      "text": "Arrays are primitive values.",
-      "correctAnswer": false
-    },
-    {
-      "type": "INPUT",
-      "text": "Which keyword declares a constant?",
-      "correctAnswer": "const"
-    },
-    {
-      "type": "CHECKBOX",
-      "text": "Which are primitive types?",
-      "options": [
-        { "text": "string", "isCorrect": true },
-        { "text": "boolean", "isCorrect": true },
-        { "text": "array", "isCorrect": false }
-      ]
-    }
-  ]
-}
-```
-
-Quiz and question IDs are UUIDs. Missing quizzes return `404`; invalid IDs or
-payloads return `400`. Errors use `{ "error": { "code": "...", "message": "..." } }`.
-Validation errors also include `fields`, an array of `{ path, message }` entries
-such as `questions.0.text`. Request bodies larger than 1 MB return `413`.
-
-## Quality checks
-
-```sh
-npm run check
-npm run build
-```
-
-`check` runs linting, TypeScript checks, and formatting verification for both
-applications. Use `npm run format` to apply formatting.
-
-Run API validation, error-handling, and frontend form regression tests without a database:
-
-```sh
-npm test
-```
-
-For HTTP/database integration tests, copy the test environment example and start
-the separate local test database:
+For database integration tests, start a separate test database:
 
 ```sh
 cp backend/.env.test.example backend/.env.test
 npm run db:test:start
 ```
 
-In another terminal:
-
-```sh
-npm run test:integration
-```
-
-The integration suite applies migrations to the database configured in
-`backend/.env.test`, starts the API on an available port, and cleans up its own
-quiz records afterward. Keep this configuration separate from development and
-production databases. Stop the test database with `q` or `Ctrl+C` when finished.
-
-After building, production servers can be started in separate terminals:
-
-```sh
-npm run start --workspace backend
-npm run start --workspace frontend
-```
-
-## Structure
-
-```text
-backend/
-  src/                 Express app, configuration, and server entry point
-  prisma/              Database schema, migrations, and sample quiz seed
-  prisma.config.ts     Prisma CLI configuration
-frontend/
-  app/                 Next.js routes, layout, and Tailwind stylesheet
-  components/          Quiz library, confirmation dialog, and creation form
-  lib/                 Typed API client and response types
-```
-
-The root uses npm workspaces with one lockfile. Each application has its own
-dependencies and commands.
-
-## Assessment
-
-The [assessment](https://develops.notion.site/Full-Stack-JS-engineer-test-assessment-the-Quiz-Builder-2160fe54b07b80cb9a5ec4cd6ab51957)
-requires creating, listing, viewing, and deleting quizzes.
+Then run `npm run test:integration` in another terminal. Use only the test database
+in `backend/.env.test`; the suite applies migrations and creates/deletes test data.
