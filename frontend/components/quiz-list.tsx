@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, BookOpen, Plus, Trash2 } from 'lucide-react';
 import { apiRequest, ApiError, type QuizSummary } from '@/lib/quizzes';
@@ -19,7 +20,9 @@ function DeleteDialog({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
   useEffect(() => {
-    dialog.current?.showModal();
+    const element = dialog.current;
+    element?.showModal();
+    return () => element?.close();
   }, []);
   async function remove() {
     setPending(true);
@@ -83,6 +86,7 @@ export function QuizList({
 }: {
   initialQuizzes: QuizSummary[];
 }) {
+  const router = useRouter();
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [selected, setSelected] = useState<QuizSummary | null>(null);
   const [notice, setNotice] = useState('');
@@ -164,6 +168,7 @@ export function QuizList({
           onDeleted={() => {
             setDeletedIds((ids) => [...ids, selected.id]);
             setNotice('Quiz deleted.');
+            router.refresh();
             setSelected(null);
           }}
         />
