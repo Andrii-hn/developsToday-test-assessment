@@ -24,7 +24,7 @@
     "db:deploy": "npm run db:deploy --workspace backend --",
     "db:seed": "npm run db:seed --workspace backend --",
     "db:validate": "npm run db:validate --workspace backend --",
-    "test": "npm run test --workspace backend",
+    "test": "npm run test --workspaces",
     "test:integration": "npm run test:integration --workspace backend",
     "db:test:start": "npm run db:test:start --workspace backend"
   },
@@ -40,6 +40,7 @@
     },
     "prisma": {
       "mysql2": "3.24.4"
-    }
+    },
+    "jsdom": "26.1.0"
   }
 }

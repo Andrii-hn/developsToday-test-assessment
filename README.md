@@ -239,7 +239,7 @@ npm run build
 `check` runs linting, TypeScript checks, and formatting verification for both
 applications. Use `npm run format` to apply formatting.
 
-Run validation and error-handling tests without a database:
+Run API validation, error-handling, and frontend form regression tests without a database:
 
 ```sh
 npm test

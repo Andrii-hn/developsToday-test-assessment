@@ -325,7 +325,8 @@ export function QuizForm() {
         </fieldset>
         <ErrorMessage message={form.formState.errors.root?.message} />
         {form.formState.isSubmitted &&
-          !form.formState.isValid &&
+          !pending &&
+          !!(form.formState.errors.title || form.formState.errors.questions) &&
           !form.formState.errors.root && (
             <ErrorMessage message="Please check the highlighted fields before saving." />
           )}
